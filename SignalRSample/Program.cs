@@ -20,7 +20,9 @@ namespace SignalRSample
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
-            builder.Services.AddSignalR();
+
+            var connectionAzureSignalR = "Endpoint=https://kosmetixsignalr.service.signalr.net;AccessKey=fGsbl1ZLp5eA2TLWpFZhBW3ypWbU1KovNCMT/znFOEg=;Version=1.0;";
+            builder.Services.AddSignalR().AddAzureSignalR(connectionAzureSignalR);
 
             var app = builder.Build(); 
 
@@ -49,6 +51,11 @@ namespace SignalRSample
             app.MapRazorPages();
             app.MapHub<UserHub>("/hubs/userCount");
             app.MapHub<DeathlyHallowsHub>("/hubs/deathlyhallows");
+            app.MapHub<HouseGroupHub>("/hubs/houseGroup");
+            app.MapHub<NotificationHub>("/hubs/notification");
+            app.MapHub<BasicChatHub>("/hubs/basicchat");
+            app.MapHub<OrderHub>("/hubs/order");
+            app.MapHub<ChatHub>("/hubs/chat");
 
             app.Run();
         }
