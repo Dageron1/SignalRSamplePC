@@ -19,10 +19,21 @@ namespace SignalRSample
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.ConfigureApplicationCookie(options => {
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Identity/Account/Logout";
+                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+            });
             builder.Services.AddControllersWithViews();
 
-            var connectionAzureSignalR = "Endpoint=https://kosmetixsignalr.service.signalr.net;AccessKey=fGsbl1ZLp5eA2TLWpFZhBW3ypWbU1KovNCMT/znFOEg=;Version=1.0;";
-            builder.Services.AddSignalR().AddAzureSignalR(connectionAzureSignalR);
+            //var connectionAzureSignalR = "Endpoint=https://kosmetixsignalr.service.signalr.net;AccessKey=fGsbl1ZLp5eA2TLWpFZhBW3ypWbU1KovNCMT/znFOEg=;Version=1.0;";
+            //builder.Services.AddSignalR().AddAzureSignalR(connectionAzureSignalR);
+            builder.Services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromMinutes(100);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+            builder.Services.AddSignalR();
 
             var app = builder.Build(); 
 
@@ -47,7 +58,7 @@ namespace SignalRSample
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
             app.MapHub<UserHub>("/hubs/userCount");
             app.MapHub<DeathlyHallowsHub>("/hubs/deathlyhallows");

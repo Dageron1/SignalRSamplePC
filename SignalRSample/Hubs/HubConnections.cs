@@ -3,10 +3,8 @@
     public static class HubConnections
     {
         //userid = connectionid
-        //с помощью этого словаря будем знать всех подключенных пользователей
         public static Dictionary<string, List<string>> Users = new();
 
-        //один пользователь может иметь много connections
         public static bool HasUserConnection(string UserId, string ConnectionId)
         {
             try
@@ -23,13 +21,14 @@
 
             return false;
         }
+
         public static bool HasUser(string UserId)
         {
             try
             {
                 if (Users.ContainsKey(UserId))
                 {
-                    return Users[UserId].Any(); //возвращает true or false
+                    return Users[UserId].Any();
                 }
             }
             catch (Exception ex)
@@ -56,5 +55,6 @@
         {
             return Users.Keys.ToList();
         }
+
     }
 }

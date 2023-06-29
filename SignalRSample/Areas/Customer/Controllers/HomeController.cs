@@ -8,16 +8,19 @@ using SignalRSample.Models.ViewModel;
 using System.Diagnostics;
 using System.Security.Claims;
 
-namespace SignalRSample.Controllers
+namespace SignalRSample.Areas.Customer.Controllers
 {
+    [Area("Customer")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IHubContext<DeathlyHallowsHub> _deathlyHub;
-        private readonly IHubContext<OrderHub> _orderHub; //внедрили для toastr notification
+        private readonly IHubContext<OrderHub> _orderHub;
         private readonly ApplicationDbContext _context;
-
-        public HomeController(ILogger<HomeController> logger, IHubContext<DeathlyHallowsHub> deathlyHub,IHubContext<OrderHub> orderHub, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger,
+            IHubContext<DeathlyHallowsHub> deathlyHub,
+            IHubContext<OrderHub> orderHub,
+            ApplicationDbContext context)
         {
             _logger = logger;
             _deathlyHub = deathlyHub;
@@ -28,6 +31,7 @@ namespace SignalRSample.Controllers
         public IActionResult Index()
         {
             return View();
+
         }
         [Authorize]
         public IActionResult Chat()
@@ -37,7 +41,18 @@ namespace SignalRSample.Controllers
             {
                 Rooms = _context.ChatRoom.ToList(),
                 MaxRoomAllowed = 4,
-                UserId = userId
+                UserId = userId,
+            };
+            return View(chatVm);
+        }
+        public IActionResult AdvancedChat()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ChatVM chatVm = new()
+            {
+                Rooms = _context.ChatRoom.ToList(),
+                MaxRoomAllowed = 4,
+                UserId = userId,
             };
             return View(chatVm);
         }
@@ -45,17 +60,17 @@ namespace SignalRSample.Controllers
         {
             return View();
         }
-
         public async Task<IActionResult> DeathlyHallows(string type)
         {
-            if(SD.DealthyHallowRace.ContainsKey(type))
+            if (SD.DealthyHallowRace.ContainsKey(type))
             {
                 SD.DealthyHallowRace[type]++;
             }
-            await _deathlyHub.Clients.All.SendAsync("updateDeathlyHallowCount",
+            await _deathlyHub.Clients.All.SendAsync("updateDealthyHallowCount",
                 SD.DealthyHallowRace[SD.Cloak],
                 SD.DealthyHallowRace[SD.Stone],
                 SD.DealthyHallowRace[SD.Wand]);
+
             return Accepted();
         }
 
@@ -77,6 +92,7 @@ namespace SignalRSample.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
 
         [ActionName("Order")]
         public async Task<IActionResult> Order()
@@ -119,5 +135,6 @@ namespace SignalRSample.Controllers
             var productList = _context.Orders.ToList();
             return Json(new { data = productList });
         }
+
     }
 }
